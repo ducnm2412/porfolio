@@ -7,6 +7,7 @@ import { useEffect, useRef, useState, type CSSProperties } from "react";
 const slides = [
   {
     nav: "Kaito Dog",
+    tag: "Siêu trộm",
     symbols: ["♣", "♦", "♠", "♥"],
     title: "Kaito Dog",
     desc: "“Siêu trộm là một nghệ sĩ, đánh cắp con mồi bằng sự hoa mỹ. Còn thám tử chỉ là nhà phê bình, lần theo dấu chân chúng tôi mà bới móc.” — Kaito Kid",
@@ -18,6 +19,7 @@ const slides = [
     ],
     cta: "Gặp Boss Dog",
     card: {
+      variant: "calling",
       label: "Thư báo trước",
       message: "Hẹn gặp bạn dưới ánh trăng đêm nay.",
       name: "Kaito Dog",
@@ -29,6 +31,7 @@ const slides = [
   },
   {
     nav: "Boss Dog",
+    tag: "Đại ca",
     symbols: ["★", "✦", "✸"],
     title: "Boss Dog",
     desc: "Tao không ngán ai. Sống đơn giản thôi, phần ồn ào đã có khẩu súng lo.",
@@ -40,6 +43,7 @@ const slides = [
     ],
     cta: "Gặp Chill Dog",
     card: {
+      variant: "warning",
       label: "Cảnh báo",
       message: "Đứng xa ra một chút, nòng súng đang nóng.",
       name: "Boss Dog",
@@ -51,6 +55,7 @@ const slides = [
   },
   {
     nav: "Chill Dog",
+    tag: "Thư giãn",
     symbols: ["♪", "♫", "♬"],
     title: "Chill Dog",
     desc: "Ngoài kia cứ mưa, trong này đã có nhạc. Đeo tai nghe lên, thế giới tự khắc nhỏ lại.",
@@ -62,6 +67,7 @@ const slides = [
     ],
     cta: "Gặp Dev Dog",
     card: {
+      variant: "player",
       label: "Đang phát",
       message: "Một bản lo-fi cho buổi chiều mưa.",
       name: "Chill Dog",
@@ -73,6 +79,7 @@ const slides = [
   },
   {
     nav: "Dev Dog",
+    tag: "Lập trình",
     symbols: ["</>", "{ }", ";", "#"],
     title: "Dev Dog",
     desc: "Code chạy rồi thì đừng đụng vào. Còn nếu chưa chạy, thử tắt đi bật lại xem sao.",
@@ -84,6 +91,7 @@ const slides = [
     ],
     cta: "Gặp Selfie Dog",
     card: {
+      variant: "terminal",
       label: "Ghi chú",
       message: "Nhớ commit trước khi đi ngủ.",
       name: "Dev Dog",
@@ -95,6 +103,7 @@ const slides = [
   },
   {
     nav: "Selfie Dog",
+    tag: "Sống ảo",
     symbols: ["♥", "✦", "✿"],
     title: "Selfie Dog",
     desc: "Tắm xong là phải có một tấm. Nháy mắt một cái, góc nào cũng là góc đẹp.",
@@ -106,6 +115,7 @@ const slides = [
     ],
     cta: "Gặp Panic Dog",
     card: {
+      variant: "post",
       label: "Đã đăng",
       message: "Tắm xong rồi, xinh chưa nè?",
       name: "Selfie Dog",
@@ -117,6 +127,7 @@ const slides = [
   },
   {
     nav: "Panic Dog",
+    tag: "Hoảng loạn",
     symbols: ["!", "?", "!!"],
     title: "Panic Dog",
     desc: "Deadline là ngày mai mà cứ tưởng tuần sau. Hít một hơi thật sâu rồi hoảng tiếp.",
@@ -128,6 +139,7 @@ const slides = [
     ],
     cta: "Gặp Foodie Dog",
     card: {
+      variant: "alert",
       label: "Khẩn cấp",
       message: "Ai đó cứu tôi với!",
       name: "Panic Dog",
@@ -139,6 +151,7 @@ const slides = [
   },
   {
     nav: "Foodie Dog",
+    tag: "Ăn uống",
     symbols: ["🍉", "♥", "🍉"],
     title: "Foodie Dog",
     desc: "Dưa hấu chia đôi, tình bạn nhân đôi. Ăn trước đã, mọi chuyện khác tính sau.",
@@ -150,6 +163,7 @@ const slides = [
     ],
     cta: "Về đầu trang",
     card: {
+      variant: "receipt",
       label: "Thực đơn",
       message: "Hôm nay có dưa hấu, ai đến trước ăn trước.",
       name: "Foodie Dog",
@@ -423,6 +437,13 @@ export default function Hero() {
               inert={i !== active}
               aria-hidden={i !== active}
             >
+              <p className="hero-eyebrow">
+                <b>{String(i + 1).padStart(2, "0")}</b>
+                <i aria-hidden />
+                <span>
+                  {String(N).padStart(2, "0")} · {slide.tag}
+                </span>
+              </p>
               <BouncyTitle text={slide.title} />
               <p>{slide.desc}</p>
               <dl className="hero-stats">
@@ -435,10 +456,21 @@ export default function Hero() {
               </dl>
               <button
                 type="button"
-                className="hero-cta"
+                className={`hero-cta ${i === N - 1 ? "up" : ""}`}
                 onClick={() => go(i === N - 1 ? 0 : i + 1)}
               >
                 {slide.cta}
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth={2.4}
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  aria-hidden
+                >
+                  <path d="M5 12h14M13 6l6 6-6 6" />
+                </svg>
               </button>
             </section>
           ))}
@@ -518,11 +550,20 @@ export default function Hero() {
             ))}
           </div>
           <div className="hero-card-wrap">
-            <div key={active} className="hero-card">
+            <div
+              key={active}
+              className="hero-card"
+              data-variant={slides[active].card.variant}
+            >
+              <svg className="hero-card-pin" viewBox="0 0 24 24" aria-hidden>
+                <circle className="head" cx={12} cy={12} r={10} />
+                <circle cx={8.5} cy={8.5} r={3.2} fill="#fff" opacity={0.5} />
+              </svg>
               <p className="hero-card-label">{slides[active].card.label}</p>
               <p className="hero-card-message">
                 {slides[active].card.message}
               </p>
+              <span className="hero-card-deco" />
               <p className="hero-card-sign">
                 <span>{slides[active].card.name}</span>
                 <span>{slides[active].card.mark}</span>

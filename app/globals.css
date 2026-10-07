@@ -335,7 +335,7 @@ body {
   border-radius: 6px;
   background: var(--plate);
   box-shadow: 0 18px 36px -14px var(--shadow);
-  transform: rotate(6deg);
+  transform: rotate(var(--tilt, 6deg));
 }
 
 .hero-card-label {
@@ -602,7 +602,7 @@ body {
 @keyframes hero-card-flip {
   from {
     opacity: 0;
-    transform: perspective(700px) rotateY(-95deg) rotate(6deg);
+    transform: perspective(700px) rotateY(-95deg) rotate(var(--tilt, 6deg));
   }
 }
 
@@ -720,6 +720,351 @@ body {
   }
 }
 
+/* ====== Thẻ bài: ghim ở mép trên, và mỗi phần một kiểu thẻ riêng (data-variant) ====== */
+.hero-card-pin {
+  position: absolute;
+  left: 50%;
+  top: -11px;
+  width: 22px;
+  height: 22px;
+  translate: -50% 0;
+  filter: drop-shadow(0 4px 3px rgb(0 0 0 / 0.35));
+}
+
+.hero-card-pin .head {
+  fill: var(--accent);
+  transition: fill 0.5s ease;
+}
+
+.hero-card-deco {
+  display: none;
+}
+
+/* Kaito Dog: thư báo trước, khung viền kép và chữ viết tay */
+.hero-card[data-variant="calling"] {
+  --tilt: 6deg;
+  outline: 1px solid color-mix(in srgb, var(--ink) 30%, transparent);
+  outline-offset: -7px;
+  border-radius: 3px;
+  padding: 20px 22px 16px;
+}
+
+.hero-card[data-variant="calling"] .hero-card-message {
+  font-family: var(--script);
+  font-weight: 400;
+  font-size: 20px;
+  line-height: 1.35;
+}
+
+/* Boss Dog: biển cảnh báo vàng đen */
+.hero-card[data-variant="warning"] {
+  --tilt: -4deg;
+  background: #ffd21f;
+  color: #17171a;
+  border-radius: 4px;
+  padding-top: 26px;
+  overflow: visible;
+}
+
+.hero-card[data-variant="warning"]::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 12px;
+  border-radius: 4px 4px 0 0;
+  background: repeating-linear-gradient(-45deg, #17171a 0 10px, #ffd21f 10px 20px);
+}
+
+.hero-card[data-variant="warning"] .hero-card-label,
+.hero-card[data-variant="warning"] .hero-card-sign span:last-child {
+  color: #17171a;
+}
+
+.hero-card[data-variant="warning"] .hero-card-message {
+  text-transform: uppercase;
+  font-size: 17px;
+  letter-spacing: 0.01em;
+}
+
+/* Chill Dog: trình phát nhạc bo tròn có thanh tiến độ */
+.hero-card[data-variant="player"] {
+  --tilt: 3deg;
+  border-radius: 20px;
+  padding: 18px 20px 14px;
+}
+
+.hero-card[data-variant="player"] .hero-card-deco {
+  display: block;
+  position: relative;
+  height: 4px;
+  margin-top: 12px;
+  border-radius: 4px;
+  background: color-mix(in srgb, var(--muted) 30%, transparent);
+  overflow: hidden;
+}
+
+.hero-card[data-variant="player"] .hero-card-deco::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 4px;
+  background: var(--accent);
+  transform-origin: left;
+  animation: hero-card-progress 14s linear infinite;
+}
+
+@keyframes hero-card-progress {
+  from {
+    transform: scaleX(0.05);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+
+/* Dev Dog: cửa sổ terminal */
+.hero-card[data-variant="terminal"] {
+  --tilt: -3deg;
+  background: #14161b;
+  color: #d7f7d0;
+  border-radius: 10px;
+  font-family: ui-monospace, "Cascadia Code", Consolas, monospace;
+}
+
+.hero-card[data-variant="terminal"] .hero-card-label {
+  color: #7d8590;
+  letter-spacing: 0.08em;
+}
+
+.hero-card[data-variant="terminal"] .hero-card-label::before {
+  content: "● ● ●  ";
+  letter-spacing: 0;
+  color: #ff6b5e;
+}
+
+.hero-card[data-variant="terminal"] .hero-card-message {
+  font-family: inherit;
+  font-weight: 500;
+  font-size: 15px;
+  line-height: 1.45;
+}
+
+.hero-card[data-variant="terminal"] .hero-card-message::before {
+  content: "$ ";
+  color: #7fd38e;
+}
+
+.hero-card[data-variant="terminal"] .hero-card-sign span:last-child {
+  color: #7fd38e;
+}
+
+/* Selfie Dog: bài đăng mạng xã hội */
+.hero-card[data-variant="post"] {
+  --tilt: 7deg;
+  border-radius: 20px;
+  border: 3px solid var(--plate);
+  background: color-mix(in srgb, var(--accent) 16%, var(--plate));
+}
+
+.hero-card[data-variant="post"] .hero-card-sign span:last-child {
+  padding: 2px 10px;
+  border-radius: 999px;
+  background: var(--accent);
+  color: var(--on-accent);
+}
+
+/* Panic Dog: giấy báo động viền đứt, run bần bật */
+.hero-card[data-variant="alert"] {
+  --tilt: -6deg;
+  border: 2px dashed var(--accent);
+  border-radius: 4px;
+  animation-duration: 0.55s, 0.32s;
+}
+
+.hero-card[data-variant="alert"] .hero-card-label {
+  color: var(--accent);
+}
+
+.hero-card[data-variant="alert"] .hero-card-message {
+  font-size: 22px;
+}
+
+/* Foodie Dog: hoá đơn có mép răng cưa */
+.hero-card[data-variant="receipt"] {
+  --tilt: 4deg;
+  border-radius: 2px 2px 0 0;
+  font-family: ui-monospace, "Cascadia Code", Consolas, monospace;
+}
+
+.hero-card[data-variant="receipt"]::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 100%;
+  height: 8px;
+  background:
+    linear-gradient(135deg, var(--plate) 50%, transparent 50%) 0 0 / 12px 8px,
+    linear-gradient(225deg, var(--plate) 50%, transparent 50%) 0 0 / 12px 8px;
+}
+
+.hero-card[data-variant="receipt"] .hero-card-message {
+  font-family: inherit;
+  font-weight: 600;
+  font-size: 15px;
+  line-height: 1.45;
+}
+
+.hero-card[data-variant="receipt"] .hero-card-sign {
+  padding-top: 8px;
+  border-top: 2px dashed color-mix(in srgb, var(--muted) 50%, transparent);
+}
+
+/* ====== Phần chữ: dòng số thứ tự, vệt tô dưới tên, chỉ số dạng lưới, các khối hiện lần lượt ====== */
+.hero-eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0 0 14px;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.hero-panel .hero-eyebrow {
+  margin: 0 0 14px;
+  max-width: none;
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.hero-eyebrow b {
+  font-family: var(--display);
+  font-size: 17px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  color: var(--accent);
+  transition: color 0.5s ease;
+}
+
+.hero-eyebrow i {
+  width: 34px;
+  height: 2px;
+  border-radius: 2px;
+  background: var(--accent);
+  transform-origin: left;
+  transition: background-color 0.5s ease;
+}
+
+/* Vệt bút tô màu nền chạy dưới tên, quét từ trái sang khi phần đó được chọn */
+.hero-panel h2 {
+  position: relative;
+  isolation: isolate;
+  width: fit-content;
+}
+
+.hero-panel h2::after {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  left: -0.06em;
+  right: -0.1em;
+  bottom: 0.12em;
+  height: 0.3em;
+  border-radius: 0.08em;
+  background: color-mix(in srgb, var(--accent) 28%, var(--tint));
+  transform: scaleX(0) rotate(-1.2deg);
+  transform-origin: left;
+  transition: background-color 0.5s ease;
+}
+
+.hero-panel.on h2::after {
+  animation: hero-marker 0.7s cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation-delay: calc(var(--letter-base, 0.08s) + 0.45s);
+}
+
+@keyframes hero-marker {
+  to {
+    transform: scaleX(1) rotate(-1.2deg);
+  }
+}
+
+.hero-stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px 24px;
+}
+
+.hero-stats div {
+  padding-top: 10px;
+  border-top: 2px solid color-mix(in srgb, var(--accent) 30%, transparent);
+  transition: border-color 0.5s ease;
+}
+
+.hero-cta {
+  gap: 10px;
+}
+
+.hero-cta svg {
+  width: 18px;
+  height: 18px;
+  transition: translate 0.25s ease;
+}
+
+.hero-cta:hover svg {
+  translate: 5px 0;
+}
+
+.hero-cta.up svg {
+  rotate: -90deg;
+}
+
+.hero-cta.up:hover svg {
+  translate: 0 -5px;
+}
+
+/* Dòng số, mô tả, chỉ số và nút lần lượt trượt lên sau khi tên đã rơi xuống */
+.hero-panel.on > .hero-eyebrow,
+.hero-panel.on > p:not(.hero-eyebrow),
+.hero-panel.on > .hero-stats > div,
+.hero-panel.on > .hero-cta {
+  animation: hero-copy-rise 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation-delay: calc(var(--letter-base, 0.08s) + var(--o, 0s));
+}
+
+.hero-panel.on > p:not(.hero-eyebrow) {
+  --o: 0.3s;
+}
+
+.hero-panel.on > .hero-stats > div:nth-child(1) {
+  --o: 0.42s;
+}
+
+.hero-panel.on > .hero-stats > div:nth-child(2) {
+  --o: 0.5s;
+}
+
+.hero-panel.on > .hero-stats > div:nth-child(3) {
+  --o: 0.58s;
+}
+
+.hero-panel.on > .hero-stats > div:nth-child(4) {
+  --o: 0.66s;
+}
+
+.hero-panel.on > .hero-cta {
+  --o: 0.8s;
+}
+
+@keyframes hero-copy-rise {
+  from {
+    opacity: 0;
+    translate: 0 16px;
+  }
+}
+
 @media (max-width: 820px) {
   .hero-stage {
     --M: clamp(150px, min(48vw, 26vh), 320px);
@@ -761,6 +1106,15 @@ body {
 
   .hero-floaties {
     inset: 0 0 58% 0;
+  }
+
+  .hero-panel .hero-eyebrow {
+    margin-bottom: 4px;
+    font-size: 12px;
+  }
+
+  .hero-stats div {
+    padding-top: 6px;
   }
 
   .hero-copy {
@@ -817,6 +1171,10 @@ body {
     scroll-snap-type: none;
   }
 
+  .hero-panel.on > .hero-eyebrow,
+  .hero-panel.on > p:not(.hero-eyebrow),
+  .hero-panel.on > .hero-stats > div,
+  .hero-panel.on > .hero-cta,
   .hero-bob,
   .hero-thumb:hover .hero-thumb-face,
   .hero-thumb:focus-visible .hero-thumb-face,
@@ -844,5 +1202,10 @@ body {
 
   .hero-panel {
     transform: none;
+  }
+
+  .hero-panel.on h2::after {
+    animation: none;
+    transform: scaleX(1) rotate(-1.2deg);
   }
 }
