@@ -305,7 +305,7 @@ export default function Hero() {
 
         <div ref={wheelRef} className="hero-wheel">
           <div ref={arcRef} className="hero-arc" />
-          <div>
+          <div className="hero-thumbs">
             {slides.map((slide, i) => (
               <button
                 key={slide.src}
@@ -328,7 +328,7 @@ export default function Hero() {
               </button>
             ))}
           </div>
-          <div>
+          <div className="hero-mains">
             {slides.map((slide, i) => (
               <div
                 key={slide.src}
@@ -349,13 +349,17 @@ export default function Hero() {
               </div>
             ))}
           </div>
-          <div key={active} className="hero-card">
-            <p className="hero-card-label">{slides[active].card.label}</p>
-            <p className="hero-card-message">{slides[active].card.message}</p>
-            <p className="hero-card-sign">
-              <span>{slides[active].card.name}</span>
-              <span>{slides[active].card.mark}</span>
-            </p>
+          <div className="hero-card-wrap">
+            <div key={active} className="hero-card">
+              <p className="hero-card-label">{slides[active].card.label}</p>
+              <p className="hero-card-message">
+                {slides[active].card.message}
+              </p>
+              <p className="hero-card-sign">
+                <span>{slides[active].card.name}</span>
+                <span>{slides[active].card.mark}</span>
+              </p>
+            </div>
           </div>
         </div>
 
@@ -365,6 +369,7 @@ export default function Hero() {
               key={slide.src}
               type="button"
               aria-current={i === active}
+              style={{ "--i": i } as CSSProperties}
               onClick={() => go(i)}
             >
               {slide.nav}
