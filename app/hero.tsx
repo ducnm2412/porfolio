@@ -7,6 +7,7 @@ import { useEffect, useRef, useState, type CSSProperties } from "react";
 const slides = [
   {
     nav: "Kaito Dog",
+    symbols: ["♣", "♦", "♠", "♥"],
     title: "Kaito Dog",
     desc: "“Siêu trộm là một nghệ sĩ, đánh cắp con mồi bằng sự hoa mỹ. Còn thám tử chỉ là nhà phê bình, lần theo dấu chân chúng tôi mà bới móc.” — Kaito Kid",
     stats: [
@@ -28,6 +29,7 @@ const slides = [
   },
   {
     nav: "Boss Dog",
+    symbols: ["★", "✦", "✸"],
     title: "Boss Dog",
     desc: "Tao không ngán ai. Sống đơn giản thôi, phần ồn ào đã có khẩu súng lo.",
     stats: [
@@ -49,6 +51,7 @@ const slides = [
   },
   {
     nav: "Chill Dog",
+    symbols: ["♪", "♫", "♬"],
     title: "Chill Dog",
     desc: "Ngoài kia cứ mưa, trong này đã có nhạc. Đeo tai nghe lên, thế giới tự khắc nhỏ lại.",
     stats: [
@@ -70,6 +73,7 @@ const slides = [
   },
   {
     nav: "Dev Dog",
+    symbols: ["</>", "{ }", ";", "#"],
     title: "Dev Dog",
     desc: "Code chạy rồi thì đừng đụng vào. Còn nếu chưa chạy, thử tắt đi bật lại xem sao.",
     stats: [
@@ -91,6 +95,7 @@ const slides = [
   },
   {
     nav: "Selfie Dog",
+    symbols: ["♥", "✦", "✿"],
     title: "Selfie Dog",
     desc: "Tắm xong là phải có một tấm. Nháy mắt một cái, góc nào cũng là góc đẹp.",
     stats: [
@@ -112,6 +117,7 @@ const slides = [
   },
   {
     nav: "Panic Dog",
+    symbols: ["!", "?", "!!"],
     title: "Panic Dog",
     desc: "Deadline là ngày mai mà cứ tưởng tuần sau. Hít một hơi thật sâu rồi hoảng tiếp.",
     stats: [
@@ -133,6 +139,7 @@ const slides = [
   },
   {
     nav: "Foodie Dog",
+    symbols: ["🍉", "♥", "🍉"],
     title: "Foodie Dog",
     desc: "Dưa hấu chia đôi, tình bạn nhân đôi. Ăn trước đã, mọi chuyện khác tính sau.",
     stats: [
@@ -157,13 +164,65 @@ const slides = [
 const N = slides.length;
 const clamp = (v: number, a: number, b: number) => Math.max(a, Math.min(b, v));
 
+// Biểu tượng trôi lơ lửng trên nền màu: [trái %, trên %, cỡ px, chu kỳ s, trễ s]
+const FLOATIES = [
+  [8, 14, 28, 7, 0],
+  [30, 6, 18, 9, 1.2],
+  [62, 10, 34, 8, 0.4],
+  [88, 22, 20, 10, 2],
+  [14, 44, 16, 9, 1.6],
+  [92, 52, 30, 7, 0.8],
+  [6, 78, 24, 8, 2.4],
+  [34, 90, 18, 10, 0.2],
+  [66, 86, 30, 9, 1.4],
+  [84, 74, 16, 7, 3],
+];
+
+type Spark = {
+  id: number;
+  char: string;
+  dx: number;
+  dy: number;
+  rot: number;
+  size: number;
+};
+
+// Tách tên thành từng chữ cái để mỗi chữ rơi xuống và nảy lên lệch nhịp nhau
+function BouncyTitle({ text }: { text: string }) {
+  const words = text.split(" ");
+  return (
+    <h2 aria-label={text}>
+      {words.map((word, w) => {
+        const start = words.slice(0, w).join("").length;
+        return (
+          <span key={w} aria-hidden>
+            {w > 0 && " "}
+            <span className="hero-word">
+              {[...word].map((char, k) => (
+                <span key={k} style={{ "--c": start + k } as CSSProperties}>
+                  {char}
+                </span>
+              ))}
+            </span>
+          </span>
+        );
+      })}
+    </h2>
+  );
+}
+
 export default function Hero() {
   const [active, setActive] = useState(0);
+  // Trong lúc hiệu ứng mở trang còn chạy, chữ tiêu đề chờ khối chữ hiện ra rồi mới nảy
+  const [booted, setBooted] = useState(false);
+  const [sparks, setSparks] = useState<Spark[]>([]);
   const stageRef = useRef<HTMLDivElement>(null);
   const wheelRef = useRef<HTMLDivElement>(null);
   const arcRef = useRef<HTMLDivElement>(null);
+  const bobRef = useRef<HTMLButtonElement>(null);
   const thumbRefs = useRef<(HTMLButtonElement | null)[]>([]);
-  const mainRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const mainRefs = useRef<(HTMLSpanElement | null)[]>([]);
+  const sparkId = useRef(0);
 
   const go = (i: number) => {
     const height = stageRef.current?.offsetHeight || window.innerHeight;
@@ -173,6 +232,46 @@ export default function Hero() {
       behavior: reduce ? "auto" : "smooth",
     });
   };
+
+  // Chọc vào ảnh chính: ảnh giật mình rung lên và bắn ra một chùm biểu tượng của phần đang xem
+  const poke = () => {
+    if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    bobRef.current?.animate(
+      [
+        { scale: 1, rotate: "0deg" },
+        { scale: 0.9, rotate: "-9deg" },
+        { scale: 1.08, rotate: "8deg" },
+        { scale: 0.98, rotate: "-4deg" },
+        { scale: 1, rotate: "0deg" },
+      ],
+      { duration: 520, easing: "ease-out" },
+    );
+    const symbols = slides[active].symbols;
+    const reach = (wheelRef.current?.offsetWidth || 300) * 0.5;
+    const batch = Array.from({ length: 12 }, (_, k) => {
+      const angle = (k / 12) * Math.PI * 2 + Math.random() * 0.5;
+      const distance = reach * (1.05 + Math.random() * 0.55);
+      return {
+        id: ++sparkId.current,
+        char: symbols[k % symbols.length],
+        dx: Math.cos(angle) * distance,
+        dy: Math.sin(angle) * distance,
+        rot: Math.random() * 360 - 180,
+        size: 18 + Math.random() * 20,
+      };
+    });
+    const ids = new Set(batch.map((spark) => spark.id));
+    setSparks((current) => [...current, ...batch]);
+    setTimeout(
+      () => setSparks((current) => current.filter((s) => !ids.has(s.id))),
+      950,
+    );
+  };
+
+  useEffect(() => {
+    const timer = setTimeout(() => setBooted(true), 3300);
+    return () => clearTimeout(timer);
+  }, []);
 
   useEffect(() => {
     const stage = stageRef.current;
@@ -238,17 +337,36 @@ export default function Hero() {
       request();
     };
 
+    // Ảnh chính nghiêng theo con trỏ chuột: --px, --py chạy từ -1 tới 1 tính từ tâm bánh xe
+    const tilt = (event: PointerEvent) => {
+      if (reduce || event.pointerType !== "mouse") return;
+      const box = wheel.getBoundingClientRect();
+      const px = (event.clientX - (box.left + box.width / 2)) / (stage.offsetWidth / 2);
+      const py = (event.clientY - (box.top + box.height / 2)) / (stage.offsetHeight / 2);
+      wheel.style.setProperty("--px", clamp(px, -1, 1).toFixed(3));
+      wheel.style.setProperty("--py", clamp(py, -1, 1).toFixed(3));
+    };
+    const untilt = () => {
+      wheel.style.setProperty("--px", "0");
+      wheel.style.setProperty("--py", "0");
+    };
+
     window.addEventListener("scroll", request, { passive: true });
     window.addEventListener("resize", measure);
+    stage.addEventListener("pointermove", tilt);
+    stage.addEventListener("pointerleave", untilt);
     measure();
     return () => {
       window.removeEventListener("scroll", request);
       window.removeEventListener("resize", measure);
+      stage.removeEventListener("pointermove", tilt);
+      stage.removeEventListener("pointerleave", untilt);
       cancelAnimationFrame(raf);
     };
   }, []);
 
   const last = active === N - 1;
+  const symbols = slides[active].symbols;
 
   return (
     <main className="hero-track" style={{ "--n": N } as CSSProperties}>
@@ -260,8 +378,31 @@ export default function Hero() {
         />
       ))}
 
-      <div ref={stageRef} className="hero-stage" data-slide={active % 7}>
+      <div
+        ref={stageRef}
+        className={`hero-stage ${booted ? "" : "is-booting"}`}
+        data-slide={active % 7}
+      >
         <div className="hero-tint" />
+
+        <div className="hero-floaties" aria-hidden>
+          {FLOATIES.map(([left, top, size, duration, delay], k) => (
+            <span
+              key={`${active}-${k}`}
+              style={
+                {
+                  left: `${left}%`,
+                  top: `${top}%`,
+                  fontSize: size,
+                  "--dur": `${duration}s`,
+                  "--delay": `${delay}s`,
+                } as CSSProperties
+              }
+            >
+              {symbols[k % symbols.length]}
+            </span>
+          ))}
+        </div>
 
         <header className="hero-top">
           <h1 className="hero-logo">Kaito Dog</h1>
@@ -282,7 +423,7 @@ export default function Hero() {
               inert={i !== active}
               aria-hidden={i !== active}
             >
-              <h2>{slide.title}</h2>
+              <BouncyTitle text={slide.title} />
               <p>{slide.desc}</p>
               <dl className="hero-stats">
                 {slide.stats.map(([label, value]) => (
@@ -317,36 +458,63 @@ export default function Hero() {
                 aria-label={`Đi tới phần ${slide.nav}`}
                 onClick={() => go(i)}
               >
-                <Image
-                  src={slide.src}
-                  alt=""
-                  fill
-                  sizes="120px"
-                  className="object-cover"
-                  style={{ objectPosition: slide.position }}
-                />
+                <span className="hero-thumb-face">
+                  <Image
+                    src={slide.src}
+                    alt=""
+                    fill
+                    sizes="120px"
+                    className="object-cover"
+                    style={{ objectPosition: slide.position }}
+                  />
+                </span>
               </button>
             ))}
           </div>
           <div className="hero-mains">
-            {slides.map((slide, i) => (
-              <div
-                key={slide.src}
-                ref={(el) => {
-                  mainRefs.current[i] = el;
-                }}
-                className="hero-main"
+            <button
+              ref={bobRef}
+              type="button"
+              className="hero-bob"
+              aria-label={`Chọc ${slides[active].nav}`}
+              onClick={poke}
+            >
+              {slides.map((slide, i) => (
+                <span
+                  key={slide.src}
+                  ref={(el) => {
+                    mainRefs.current[i] = el;
+                  }}
+                  className="hero-main"
+                >
+                  <Image
+                    src={slide.src}
+                    alt={slide.alt}
+                    fill
+                    sizes="(max-width: 820px) 48vw, 31vw"
+                    className="object-cover"
+                    style={{ objectPosition: slide.position }}
+                    preload={i === 0}
+                  />
+                </span>
+              ))}
+            </button>
+          </div>
+          <div className="hero-burst" aria-hidden>
+            {sparks.map((spark) => (
+              <span
+                key={spark.id}
+                style={
+                  {
+                    fontSize: spark.size,
+                    "--dx": `${spark.dx.toFixed(0)}px`,
+                    "--dy": `${spark.dy.toFixed(0)}px`,
+                    "--rot": `${spark.rot.toFixed(0)}deg`,
+                  } as CSSProperties
+                }
               >
-                <Image
-                  src={slide.src}
-                  alt={slide.alt}
-                  fill
-                  sizes="(max-width: 820px) 48vw, 31vw"
-                  className="object-cover"
-                  style={{ objectPosition: slide.position }}
-                  preload={i === 0}
-                />
-              </div>
+                {spark.char}
+              </span>
             ))}
           </div>
           <div className="hero-card-wrap">
