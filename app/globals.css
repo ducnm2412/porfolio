@@ -1,26 +1,530 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --paper: #ffffff;
+  --ink: #20242e;
+  --muted: #5d6472;
+  --plate: #ffffff;
+  --on-accent: #ffffff;
+  --shadow: rgba(60, 45, 20, 0.28);
+  --t0: #ffe7ae;
+  --t1: #cfe6ff;
+  --t2: #d3efd2;
+  --t3: #ffd8d0;
+  --t4: #e2dbff;
+  --t5: #ffe0ef;
+  --t6: #d2f0ee;
+  --a0: #a85a00;
+  --a1: #1d5faf;
+  --a2: #1f7335;
+  --a3: #bc3b26;
+  --a4: #5642bf;
+  --a5: #b0306a;
+  --a6: #0f6e6a;
+  --display: var(--font-baloo), "Trebuchet MS", system-ui, sans-serif;
+  --body: var(--font-be-vietnam), system-ui, -apple-system, "Segoe UI", sans-serif;
+  --script: var(--font-pacifico), "Brush Script MT", cursive;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --paper: #15171c;
+    --ink: #f3f0ea;
+    --muted: #a9adb8;
+    --plate: #262a33;
+    --on-accent: #15171c;
+    --shadow: rgba(0, 0, 0, 0.55);
+    --t0: #4a3a12;
+    --t1: #16344f;
+    --t2: #1c3f26;
+    --t3: #522620;
+    --t4: #2e2760;
+    --t5: #4d1f36;
+    --t6: #153f3d;
+    --a0: #f2b544;
+    --a1: #7db8f5;
+    --a2: #7fd38e;
+    --a3: #ff9a88;
+    --a4: #b3a4ff;
+    --a5: #ff9cc8;
+    --a6: #6fd6cf;
   }
 }
 
+html {
+  scroll-snap-type: y mandatory;
+}
+
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--body);
+  font-size: 16px;
+  line-height: 1.6;
+}
+
+/* Mỗi phần chiếm một màn hình cuộn; sân khấu dính lại và bánh xe quay theo vị trí cuộn */
+.hero-track {
+  position: relative;
+  height: calc(var(--n, 4) * 100dvh);
+}
+
+.hero-snap {
+  position: absolute;
+  left: 0;
+  width: 1px;
+  height: 100dvh;
+  scroll-snap-align: start;
+  pointer-events: none;
+}
+
+.hero-stage {
+  --M: clamp(220px, min(31vw, 62vh), 520px);
+  --base: 180;
+  --step: 36;
+  --big: 70dvh;
+  --tint: var(--t0);
+  --accent: var(--a0);
+  position: sticky;
+  top: 0;
+  height: 100dvh;
+  overflow: hidden;
+  background: var(--paper);
+}
+
+.hero-stage[data-slide="1"] {
+  --tint: var(--t1);
+  --accent: var(--a1);
+}
+
+.hero-stage[data-slide="2"] {
+  --tint: var(--t2);
+  --accent: var(--a2);
+}
+
+.hero-stage[data-slide="3"] {
+  --tint: var(--t3);
+  --accent: var(--a3);
+}
+
+.hero-stage[data-slide="4"] {
+  --tint: var(--t4);
+  --accent: var(--a4);
+}
+
+.hero-stage[data-slide="5"] {
+  --tint: var(--t5);
+  --accent: var(--a5);
+}
+
+.hero-stage[data-slide="6"] {
+  --tint: var(--t6);
+  --accent: var(--a6);
+}
+
+.hero-stage button {
+  cursor: pointer;
+}
+
+.hero-stage :focus-visible {
+  outline: 3px solid var(--accent);
+  outline-offset: 3px;
+  border-radius: 6px;
+}
+
+.hero-tint {
+  position: absolute;
+  top: 50%;
+  left: 40vw;
+  height: 170dvh;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  transform: translateY(-50%);
+  background: var(--tint);
+  transition: background-color 0.5s ease;
+}
+
+.hero-top {
+  position: absolute;
+  inset: 0 0 auto 0;
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: calc(24px + env(safe-area-inset-top, 0px)) max(4vw, 20px) 0 max(6vw, 24px);
+}
+
+.hero-logo {
+  font-family: var(--script);
+  font-size: 24px;
+  line-height: 1.3;
+}
+
+.hero-meet {
+  min-height: 44px;
+  padding: 0 4px;
+  font-weight: 500;
+  font-size: 15px;
+  border-bottom: 2px solid transparent;
+}
+
+.hero-meet:hover {
+  border-bottom-color: var(--accent);
+}
+
+.hero-copy {
+  position: absolute;
+  z-index: 4;
+  left: max(6vw, 24px);
+  top: 50%;
+  transform: translateY(-50%);
+  width: min(30vw, 420px);
+  display: grid;
+}
+
+.hero-panel {
+  grid-area: 1 / 1;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(14px);
+  transition:
+    opacity 0.35s ease,
+    transform 0.35s ease,
+    visibility 0s linear 0.35s;
+}
+
+.hero-panel.on {
+  opacity: 1;
+  visibility: visible;
+  transform: none;
+  transition-delay: 0s;
+}
+
+.hero-panel h2 {
+  margin: 0 0 10px;
+  font-family: var(--display);
+  font-weight: 800;
+  font-size: clamp(40px, 5vw, 76px);
+  line-height: 1.05;
+  letter-spacing: -0.01em;
+}
+
+.hero-panel p {
+  margin: 0 0 26px;
+  color: var(--muted);
+  font-size: 15.5px;
+  max-width: 38ch;
+}
+
+.hero-stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px 28px;
+  margin: 0 0 30px;
+}
+
+.hero-stats div {
+  min-width: 64px;
+}
+
+.hero-stats dt {
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.hero-stats dd {
+  margin: 0;
+  font-family: var(--display);
+  font-weight: 700;
+  font-size: 23px;
+  line-height: 1.25;
+}
+
+.hero-cta {
+  display: inline-flex;
+  align-items: center;
+  min-height: 48px;
+  padding: 0 26px;
+  border-radius: 999px;
+  background: var(--accent);
+  color: var(--on-accent);
+  font-weight: 600;
+  font-size: 15px;
+  box-shadow: 0 14px 26px -12px var(--accent);
+  transition:
+    background-color 0.5s ease,
+    transform 0.15s ease;
+}
+
+.hero-cta:hover {
+  transform: translateY(-2px);
+}
+
+.hero-wheel {
+  position: absolute;
+  z-index: 3;
+  left: 66vw;
+  top: 50%;
+  width: var(--M);
+  height: var(--M);
+  transform: translate(-50%, -50%);
+}
+
+/* Cung lớn hơn màn hình nên hai đầu tràn ra ngoài; điểm sát ảnh chính vẫn cách tâm 0.74 × M */
+.hero-arc {
+  position: absolute;
+  left: calc(50% - var(--M) * 0.74 + var(--big));
+  top: 50%;
+  width: calc(var(--big) * 2);
+  height: calc(var(--big) * 2);
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  border: 2px dashed var(--accent);
+  opacity: 0.75;
+  clip-path: inset(0 50% 0 0);
+  transition: border-color 0.5s ease;
+}
+
+/* Vị trí, độ mờ và góc xoay của ảnh nhỏ và ảnh chính do hero.tsx đặt theo vị trí cuộn */
+.hero-thumb {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: calc(var(--M) * 0.26);
+  height: calc(var(--M) * 0.26);
+  border-radius: 50%;
+  overflow: hidden;
+  background: var(--plate);
+  border: 3px solid var(--plate);
+  box-shadow: 0 10px 20px -8px var(--shadow);
+  opacity: 0;
+  visibility: hidden;
+  will-change: transform, opacity;
+}
+
+.hero-main {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  overflow: hidden;
+  background: var(--plate);
+  border: calc(var(--M) * 0.03) solid var(--plate);
+  box-shadow:
+    0 0 0 calc(var(--M) * 0.035) color-mix(in srgb, var(--plate) 40%, transparent),
+    0 44px 70px -26px color-mix(in srgb, var(--accent) 35%, var(--shadow));
+  opacity: 0;
+  will-change: transform, opacity;
+}
+
+.hero-main:first-child {
+  opacity: 1;
+}
+
+/* Thẻ bài nằm lệch ra góc dưới bên phải ảnh chính để không che ảnh */
+.hero-card {
+  position: absolute;
+  left: 58%;
+  top: 86%;
+  width: clamp(180px, calc(var(--M) * 0.56), 230px);
+  padding: 14px 18px 12px;
+  border-radius: 6px;
+  background: var(--plate);
+  box-shadow: 0 18px 36px -14px var(--shadow);
+  transform: rotate(6deg);
+  animation: hero-card-in 0.4s ease both;
+}
+
+@keyframes hero-card-in {
+  from {
+    opacity: 0;
+    transform: rotate(6deg) translateY(12px);
+  }
+}
+
+.hero-card-label {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.hero-card-message {
+  margin-top: 6px;
+  font-family: var(--display);
+  font-weight: 700;
+  font-size: 19px;
+  line-height: 1.25;
+}
+
+.hero-card-sign {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 10px;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.hero-card-sign span:last-child {
+  color: var(--accent);
+  transition: color 0.5s ease;
+}
+
+.hero-chapters {
+  position: absolute;
+  z-index: 4;
+  right: max(4vw, 20px);
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+}
+
+.hero-chapters button {
+  min-height: 44px;
+  font-size: 15px;
+  font-weight: 500;
+  border-bottom: 2px solid transparent;
+  transition: border-color 0.3s ease;
+}
+
+.hero-chapters button[aria-current="true"],
+.hero-chapters button:hover {
+  border-bottom-color: var(--accent);
+}
+
+.hero-next {
+  position: absolute;
+  z-index: 5;
+  right: max(4vw, 20px);
+  bottom: calc(28px + env(safe-area-inset-bottom, 0px));
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: var(--accent);
+  color: var(--on-accent);
+  display: grid;
+  place-items: center;
+  transition: background-color 0.5s ease;
+}
+
+.hero-next svg {
+  width: 22px;
+  height: 22px;
+  transition: transform 0.3s ease;
+}
+
+.hero-next.up svg {
+  transform: rotate(180deg);
+}
+
+@media (max-width: 820px) {
+  .hero-stage {
+    --M: clamp(150px, min(48vw, 26vh), 320px);
+    --base: 90;
+    --big: 70vw;
+  }
+
+  .hero-tint {
+    left: 50%;
+    top: calc(76px + var(--M) * 1.5);
+    width: 170vw;
+    height: auto;
+    transform: translate(-50%, -100%);
+  }
+
+  .hero-top {
+    padding: calc(12px + env(safe-area-inset-top, 0px)) 20px 0;
+  }
+
+  .hero-logo {
+    font-size: 20px;
+  }
+
+  .hero-wheel {
+    left: 50%;
+    top: calc(72px + var(--M) / 2);
+  }
+
+  .hero-arc {
+    left: 50%;
+    top: calc(50% + var(--M) * 0.74 - var(--big));
+    clip-path: inset(50% 0 0 0);
+  }
+
+  .hero-chapters,
+  .hero-card {
+    display: none;
+  }
+
+  .hero-copy {
+    left: 20px;
+    right: 20px;
+    width: auto;
+    top: calc(88px + var(--M) * 1.5);
+    transform: none;
+  }
+
+  .hero-panel h2 {
+    font-size: clamp(34px, 10vw, 46px);
+    margin-bottom: 6px;
+  }
+
+  .hero-panel p {
+    font-size: 14.5px;
+    line-height: 1.5;
+    margin-bottom: 14px;
+    max-width: none;
+  }
+
+  .hero-stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px 16px;
+    margin-bottom: 16px;
+  }
+
+  .hero-stats dt {
+    font-size: 12.5px;
+  }
+
+  .hero-stats dd {
+    font-size: 19px;
+  }
+
+  .hero-cta {
+    min-height: 44px;
+    padding: 0 20px;
+    font-size: 14.5px;
+  }
+
+  .hero-next {
+    right: 20px;
+    bottom: calc(18px + env(safe-area-inset-bottom, 0px));
+    width: 48px;
+    height: 48px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-snap-type: none;
+  }
+
+  .hero-card {
+    animation: none;
+  }
+
+  .hero-panel,
+  .hero-cta,
+  .hero-next svg {
+    transition: none;
+  }
+
+  .hero-panel {
+    transform: none;
+  }
 }
